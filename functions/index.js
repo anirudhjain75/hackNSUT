@@ -12,7 +12,8 @@ app.intent('Default Welcome Intent', (conv) => {
     conv.ask(`Hey ${conv.data.userName}, I am Expenso. Your personal finance companion, What can I do for you ?`)
     conv.ask(new Suggestions('add', 'deduct', 'summary'));
   } else {
-    conv.ask(`Hey , I am Expenso. Your personal finance companion`)
+    conv.ask(`Hey , I am Expenso. Your personal finance companion, What can I do for you ?`)
+    conv.ask(new Suggestions('add', 'deduct', 'summary'));
   }
 })
 
@@ -29,7 +30,7 @@ app.intent('actions_intent_PERMISSION', (conv, params, permissionGranted) => {
 app.intent('add to account', (conv, {unitCurrency, note}) => {
   if (!conv.data.expenses) 
   {conv.data.expenses = []}
-  conv.ask(`You have added ${unitCurrency.amount} ${unitCurrency.currency} to your account, is there anything else I can do for you ?`);
+  conv.ask(`${unitCurrency.amount} rupees have been added to your account`);
   conv.ask(new Suggestions('add', 'deduct', 'summary'));
   conv.data.expenses.push({
     amount: unitCurrency.amount,
@@ -57,13 +58,13 @@ app.intent('expense', (conv, {unitCurrency, note}) => {
     currency: unitCurrency.currency,
     note
   })
-  conv.ask(`You have spent ${unitCurrency.amount} rupees, is there anything else I can find for you ?`)
+  conv.ask(`${unitCurrency.amount} rupees have been deducted, is there anything else I can do for you ?`)
   conv.ask(new Suggestions('add', 'deduct', 'summary'));
 });
 
 app.intent('summary', (conv) => {
   if (!conv.data.expenses){
-    conv.ask('You dont have any past transaction history')
+    conv.ask('You dont have any transaction history')
   } else {
     let received = 0, spent = 0
     conv.data.expenses.map((item) => {
@@ -73,7 +74,7 @@ app.intent('summary', (conv) => {
         received += item.amount
       }
     })
-    conv.ask(`You have received ${received} rupees and have spent ${spent}. Your current balance is ${received - spent}`)
+    conv.ask(`You have received ${received} rupees and have spent ${-1 * spent}. Your current balance is ${received + spent}`)
     conv.ask(new Suggestions('add', 'deduct'));
   }
 });
